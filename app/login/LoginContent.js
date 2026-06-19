@@ -7,6 +7,10 @@ import { createClient } from "@/lib/supabase";
 export default function LoginContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [successMsg, setSuccessMsg] = useState(null);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const router = useRouter();
 
   const supabase = createClient();
@@ -25,6 +29,7 @@ export default function LoginContent() {
   const handleGoogleLogin = async () => {
     setLoading(true);
     setError(null);
+    setSuccessMsg(null);
 
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -34,9 +39,53 @@ export default function LoginContent() {
     });
 
     if (error) {
-      setError("Gagal login. Silakan coba lagi.");
+      setError("Gagal login dengan Google. Silakan coba lagi.");
       setLoading(false);
     }
+  };
+
+  const handleEmailAuth = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSuccessMsg(null);
+
+    if (!email || !password) {
+      setError("Email dan password harus diisi.");
+      setLoading(false);
+      return;
+    }
+
+    if (isSignUp) {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        setError(error.message);
+      } else {
+        setSuccessMsg("Berhasil mendaftar! Silakan cek email kamu untuk konfirmasi, atau langsung login jika konfirmasi email dimatikan.");
+        setIsSignUp(false); // Switch to login view
+        setPassword("");
+      }
+    } else {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) {
+        setError(error.message);
+      } else {
+        // Successful login will be handled by the onAuthStateChange effect
+        setSuccessMsg("Berhasil masuk. Mengarahkan...");
+      }
+    }
+    setLoading(false);
   };
 
   return (
@@ -66,9 +115,55 @@ export default function LoginContent() {
         {error && (
           <div className="login-error">⚠️ {error}</div>
         )}
+        {successMsg && (
+          <div className="login-success">✅ {successMsg}</div>
+        )}
 
-        {loading ? (
-          <p style={{ color: "var(--muted)", fontWeight: 700, textAlign: "center" }}>⏳ Menghubungkan ke Google...</p>
+        <form onSubmit={handleEmailAuth} className="login-form">
+          <input
+            type="email"
+            placeholder="Alamat Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="login-input"
+            required
+            disabled={loading}
+          />
+          <input
+            type="password"
+            placeholder="Kata Sandi"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="login-input"
+            required
+            disabled={loading}
+            minLength={6}
+          />
+          <button type="submit" className="login-button" disabled={loading}>
+            {loading ? "Memproses..." : isSignUp ? "Daftar Akun" : "Masuk"}
+          </button>
+        </form>
+
+        <div className="login-toggle-wrap">
+          <span className="login-toggle-text">
+            {isSignUp ? "Sudah punya akun?" : "Belum punya akun?"}
+          </span>
+          <button 
+            type="button" 
+            className="login-toggle-btn"
+            onClick={() => setIsSignUp(!isSignUp)}
+            disabled={loading}
+          >
+            {isSignUp ? "Masuk di sini" : "Daftar sekarang"}
+          </button>
+        </div>
+
+        <div className="login-divider">
+          <span>atau</span>
+        </div>
+
+        {loading && !email && !password ? (
+          <p style={{ color: "var(--muted)", fontWeight: 700, textAlign: "center", marginTop: "16px" }}>⏳ Menghubungkan ke Google...</p>
         ) : (
           <button 
             className="google-login-btn" 
