@@ -55,7 +55,7 @@ export async function PUT(request) {
 
   // Field yang boleh diupdate
   const allowedFields = [
-    "full_name", "saldo_makan", "hari_ke_kiriman",
+    "full_name", "avatar_url", "saldo_makan", "hari_ke_kiriman",
     "total_kiriman", "tanggal_kiriman",
     "target_calories", "target_protein", "notifications"
   ];
