@@ -11,7 +11,7 @@ import { useApp } from "@/lib/store";
 import { formatRupiah, getDailyBudget } from "@/lib/utils";
 
 export default function ResepPage() {
-  const { state } = useApp();
+  const { state, fetchWithAuth } = useApp();
   const [activeFilter, setActiveFilter] = useState("Semua");
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   
@@ -42,7 +42,7 @@ export default function ResepPage() {
 
       // Kalau tidak ada cache atau expired, ambil dari AI
       try {
-        const res = await fetch(`/api/recipes/generate?budget=${budgetHarian}`);
+        const res = await fetchWithAuth(`/api/recipes/generate?budget=${budgetHarian}`);
         if (res.ok) {
           const json = await res.json();
           setRecipes(json.recipes);
