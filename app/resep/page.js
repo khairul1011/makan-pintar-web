@@ -21,6 +21,8 @@ export default function ResepPage() {
   const budgetHarian = getDailyBudget(state.saldoMakan, state.hariKeKiriman);
 
   useEffect(() => {
+    if (!fetchWithAuth) return; // tunggu sampai auth context siap
+
     const fetchRecipes = async () => {
       // Cek cache dulu
       const CACHE_KEY = `mp_recipes_cache_${budgetHarian}`;
@@ -59,7 +61,7 @@ export default function ResepPage() {
     };
 
     fetchRecipes();
-  }, [budgetHarian]);
+  }, [budgetHarian, fetchWithAuth]);
 
   // Ekstrak tag dinamis dari resep-resep AI
   const dynamicTags = Array.from(new Set(recipes.flatMap(r => r.tags))).map(tag => {
