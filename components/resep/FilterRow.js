@@ -1,15 +1,14 @@
 "use client";
 
-export default function FilterRow({ activeFilter, setActiveFilter }) {
-  const filters = [
+export default function FilterRow({ activeFilter, setActiveFilter, dynamicTags = [] }) {
+  const baseFilters = [
     "Semua",
     "< Rp 10rb",
     "< Rp 20rb",
     "< Rp 30rb",
-    "Telur",
-    "Nasi",
-    "Indomie"
   ];
+
+  const filters = [...baseFilters, ...dynamicTags];
 
   return (
     <div className="filter-row" aria-label="Filter resep">
