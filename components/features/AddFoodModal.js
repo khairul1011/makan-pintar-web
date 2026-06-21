@@ -32,21 +32,20 @@ export default function AddFoodModal({ isOpen, onClose, onSubmit }) {
     e.preventDefault();
     if (!name.trim()) return;
 
-    setIsSubmitting(true);
-
-    const numPrice = parseInt(price.replace(/\D/g, "")) || 0;
-    const numCalories = parseInt(calories) || 0;
-
-    await onSubmit({
+    // Simpan data sementara sebelum form di-reset
+    const foodData = {
       emoji,
       name: name.trim(),
       meal,
-      price: numPrice,
-    });
+      price: parseInt(price.replace(/\D/g, "")) || 0,
+    };
 
-    resetForm();
-    setIsSubmitting(false);
+    // Langsung tutup dan reset form (Optimistic UI)
     onClose();
+    resetForm();
+
+    // Proses onSubmit (yang mengirim request ke API secara background)
+    await onSubmit(foodData);
   };
 
   const handlePriceChange = (e) => {
