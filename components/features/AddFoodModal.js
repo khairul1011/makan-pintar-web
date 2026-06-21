@@ -18,7 +18,6 @@ export default function AddFoodModal({ isOpen, onClose, onSubmit }) {
   const [name, setName] = useState("");
   const [meal, setMeal] = useState("Siang");
   const [price, setPrice] = useState("");
-  const [calories, setCalories] = useState("");
   const [emoji, setEmoji] = useState("🍛");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -26,7 +25,6 @@ export default function AddFoodModal({ isOpen, onClose, onSubmit }) {
     setName("");
     setMeal("Siang");
     setPrice("");
-    setCalories("");
     setEmoji("🍛");
   };
 
@@ -44,7 +42,6 @@ export default function AddFoodModal({ isOpen, onClose, onSubmit }) {
       name: name.trim(),
       meal,
       price: numPrice,
-      calories: numCalories,
     });
 
     resetForm();
@@ -155,19 +152,6 @@ export default function AddFoodModal({ isOpen, onClose, onSubmit }) {
                 onChange={handlePriceChange}
               />
             </div>
-          </div>
-
-          {/* Kalori */}
-          <div>
-            <label className="field-label">Estimasi Kalori (opsional)</label>
-            <input
-              className="feature-input"
-              type="number"
-              inputMode="numeric"
-              placeholder="Contoh: 450"
-              value={calories}
-              onChange={(e) => setCalories(e.target.value)}
-            />
           </div>
 
           {/* Submit */}

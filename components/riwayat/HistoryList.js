@@ -35,7 +35,7 @@ export default function HistoryList({ mode }) {
                   </div>
                 </div>
                 <strong className="history-value">
-                  {isCalories ? `${entry.calories} kkal` : formatRupiah(entry.price)}
+                  {isCalories ? (entry.calories > 0 ? `✨ ${entry.calories} kkal` : `— kkal`) : formatRupiah(entry.price)}
                 </strong>
               </div>
             ))}
