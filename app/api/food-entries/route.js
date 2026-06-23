@@ -46,11 +46,17 @@ export async function POST(request) {
     return badRequest("Field 'name' dan 'meal' wajib diisi");
   }
 
+  // Normalisasi meal agar sesuai constraint database ('pagi', 'siang', 'malam', 'cemilan')
+  let normalizedMeal = body.meal.toLowerCase();
+  if (normalizedMeal === "sore" || normalizedMeal === "snack") {
+    normalizedMeal = "cemilan";
+  }
+
   const entry = {
     user_id: user.id,
     emoji: body.emoji || "🍛",
     name: body.name,
-    meal: body.meal.toLowerCase(),
+    meal: normalizedMeal,
     calories: 0,
     price: body.price || 0,
     entry_date: body.entry_date || new Date().toISOString().split("T")[0],
