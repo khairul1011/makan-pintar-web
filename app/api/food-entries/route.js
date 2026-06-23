@@ -50,7 +50,7 @@ export async function POST(request) {
     user_id: user.id,
     emoji: body.emoji || "🍛",
     name: body.name,
-    meal: body.meal,
+    meal: body.meal.toLowerCase(),
     calories: 0,
     price: body.price || 0,
     entry_date: body.entry_date || new Date().toISOString().split("T")[0],
