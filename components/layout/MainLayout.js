@@ -29,7 +29,7 @@ export default function MainLayout({ children }) {
   
   const [inputText, setInputText] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [isBotDrawerOpen, setIsBotDrawerOpen] = useState(true);
+  const [isBotDrawerOpen, setIsBotDrawerOpen] = useState(false); // default closed on mobile, shown on xl via css
   const chatEndRef = useRef(null);
 
   const { chatMessages, isAiTyping } = state;
@@ -224,6 +224,14 @@ export default function MainLayout({ children }) {
               <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-zinc-400 animate-pulse"></span>
             </button>
 
+            <button 
+              onClick={() => setIsBotDrawerOpen(!isBotDrawerOpen)}
+              className="xl:hidden p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800/65 hover:bg-zinc-800 text-zinc-300 hover:text-zinc-100 transition-colors cursor-pointer relative"
+            >
+              <Bot className="w-5 h-5" />
+              <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            </button>
+
             <div className="lg:hidden w-9 h-9 rounded-full bg-zinc-800 flex items-center justify-center font-headline text-sm overflow-hidden border border-zinc-700/50">
                MK
             </div>
@@ -237,12 +245,24 @@ export default function MainLayout({ children }) {
         </main>
       </div>
 
-      {/* RIGHT SIDEBAR ASISTEN AI (DESKTOP) */}
+      {/* BACKDROP UNTUK MOBILE/TABLET */}
+      {isBotDrawerOpen && (
+        <div 
+          className="xl:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          onClick={() => setIsBotDrawerOpen(false)}
+        />
+      )}
+
+      {/* RIGHT SIDEBAR ASISTEN AI (DESKTOP & OVERLAY) */}
       <aside 
         id="desktop-ai-assistant"
-        className={`hidden xl:flex flex-col w-[380px] h-full border-l border-zinc-800/80 bg-zinc-950/90 backdrop-blur-2xl shadow-2xl z-20 relative shrink-0 transition-all duration-300 ${
-          isBotDrawerOpen ? "translate-x-0" : "translate-x-full w-0 hidden"
-        }`}
+        className={`
+          fixed top-0 right-0 h-full w-[340px] sm:w-[380px] z-50 flex flex-col
+          bg-zinc-950/95 backdrop-blur-2xl border-l border-zinc-800/80 shadow-2xl
+          transition-transform duration-300 ease-in-out
+          xl:relative xl:z-20 xl:w-[380px] xl:translate-x-0
+          ${isBotDrawerOpen ? "translate-x-0" : "translate-x-full"}
+        `}
       >
         <div className="flex items-center justify-between p-5 border-b border-zinc-800/40 bg-zinc-950/55 select-none shrink-0">
           <div className="flex items-center gap-3">
@@ -257,6 +277,12 @@ export default function MainLayout({ children }) {
               <p className="text-xs text-zinc-500 font-medium">Tanya tips masak / budget makanan</p>
             </div>
           </div>
+          <button 
+            onClick={() => setIsBotDrawerOpen(false)}
+            className="xl:hidden p-2 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
