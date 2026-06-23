@@ -25,23 +25,14 @@ import { useApp } from "@/lib/store";
 export default function MainLayout({ children }) {
   const router = useRouter();
   const activePath = usePathname();
-  const { state } = useApp();
+  const { state, addChatMessage, setAiTyping } = useApp();
   
   const [inputText, setInputText] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isBotDrawerOpen, setIsBotDrawerOpen] = useState(true);
   const chatEndRef = useRef(null);
-  
-  // Fake chat state until we wire up real Gemini
-  const [chatMessages, setChatMessages] = useState([
-    {
-      id: "m1",
-      sender: "ai",
-      text: "Halo! Sisa budget kamu Rp " + (state.saldoMakan / (state.hariKeKiriman || 1)).toLocaleString("id") + " hari ini. Mau rekomendasi makan siang murah atau cek resep bahan sisa di kulkas?",
-      createdAt: new Date(Date.now() - 5 * 60000).toISOString()
-    }
-  ]);
-  const [isAiTyping, setIsAiTyping] = useState(false);
+
+  const { chatMessages, isAiTyping } = state;
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -61,8 +52,8 @@ export default function MainLayout({ children }) {
       text,
       createdAt: new Date().toISOString()
     };
-    setChatMessages((prev) => [...prev, userMsg]);
-    setIsAiTyping(true);
+    addChatMessage(userMsg);
+    setAiTyping(true);
 
     try {
       const response = await fetch("/api/chat", {
@@ -90,7 +81,7 @@ export default function MainLayout({ children }) {
         text: data.reply,
         createdAt: new Date().toISOString()
       };
-      setChatMessages((prev) => [...prev, aiMsg]);
+      addChatMessage(aiMsg);
     } catch (err) {
       setTimeout(() => {
         let replyText = "Asisten AI saat ini sedang offline. Tapi coba kamu ke menu Resep Hemat buat inspirasi makanan murah!";
@@ -103,10 +94,10 @@ export default function MainLayout({ children }) {
           text: replyText,
           createdAt: new Date().toISOString()
         };
-        setChatMessages((prev) => [...prev, aiMsg]);
+        addChatMessage(aiMsg);
       }, 1000);
     }
-    setIsAiTyping(false);
+    setAiTyping(false);
   };
 
   const handleQuickAiAsk = (text) => {

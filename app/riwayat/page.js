@@ -140,7 +140,7 @@ export default function RiwayatPage() {
                         </span>
                         <span className="text-zinc-700">•</span>
                         <span className="text-zinc-400 flex items-center gap-0.5 font-mono">
-                          <Flame className="w-3.5 h-3.5 text-emerald-400" /> {log.calories ? `${log.calories} kkal` : "Menghitung..."}
+                          <Flame className="w-3.5 h-3.5 text-emerald-400" /> {log.calories > 0 ? `${log.calories} kkal` : "-"}
                         </span>
                       </div>
                     </div>

@@ -209,7 +209,7 @@ export default function DashboardPage() {
                               {log.meal}
                             </span>
                             <span className="text-[11px] text-zinc-400 flex items-center gap-0.5">
-                              <Flame className="w-3 h-3 text-emerald-400" /> {log.calories ? `${log.calories} kkal` : "Menghitung..."}
+                              <Flame className="w-3 h-3 text-emerald-400" /> {log.calories > 0 ? `${log.calories} kkal` : "-"}
                             </span>
                           </div>
                         </div>
