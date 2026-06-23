@@ -9,7 +9,6 @@ const MEAL_OPTIONS = [
   { value: "Siang", emoji: "☀️" },
   { value: "Sore", emoji: "🌇" },
   { value: "Malam", emoji: "🌙" },
-  { value: "Snack", emoji: "🍿" },
 ];
 
 const FOOD_EMOJIS = ["🍛", "🍜", "🍳", "🍱", "🍗", "🥚", "🍔", "🥤", "🧁", "🥟", "🍲", "🥗"];
