@@ -16,7 +16,7 @@ export async function GET(request) {
 
   try {
     const { text } = await generateText({
-      model: google("gemini-2.5-flash"),
+      model: google("gemini-2.0-flash"),
       prompt: `Buatkan 5 resep makanan survival ala anak kos (sangat murah) yang harganya di bawah Rp ${budget}.
 Penting: Resep harus realistis dan bahan-bahannya bisa dibeli dengan harga tersebut.
 Berikan jawaban HANYA berupa JSON valid berbentuk array of objects tanpa markdown block (seperti \`\`\`json) atau teks pengantar apa pun. 
