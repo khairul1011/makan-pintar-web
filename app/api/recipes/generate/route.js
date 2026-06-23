@@ -1,11 +1,6 @@
 import { NextResponse } from "next/server";
 import { getAuthUser, unauthorized, serverError } from "@/lib/api-helpers";
-import { generateText } from "ai";
-import { createGoogleGenerativeAI } from "@ai-sdk/google";
-
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-});
+import { generateTextWithFallback } from "@/lib/gemini";
 
 export async function GET(request) {
   const { user, error } = await getAuthUser(request);
@@ -15,8 +10,7 @@ export async function GET(request) {
   const budget = parseInt(searchParams.get("budget")) || 45000;
 
   try {
-    const { text } = await generateText({
-      model: google("gemini-2.5-flash-lite"),
+    const text = await generateTextWithFallback({
       prompt: `Buatkan 5 resep makanan survival ala anak kos (sangat murah) yang harganya di bawah Rp ${budget}.
 Penting: Resep harus realistis dan bahan-bahannya bisa dibeli dengan harga tersebut.
 Berikan jawaban HANYA berupa JSON valid berbentuk array of objects tanpa markdown block (seperti \`\`\`json) atau teks pengantar apa pun. 

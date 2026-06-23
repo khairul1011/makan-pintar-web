@@ -1,9 +1,4 @@
-import { generateText } from 'ai';
-import { createGoogleGenerativeAI } from '@ai-sdk/google';
-
-const google = createGoogleGenerativeAI({
-  apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY,
-});
+import { generateTextWithFallback } from '@/lib/gemini';
 
 export async function POST(req) {
   try {
@@ -36,8 +31,7 @@ Instruksi:
 5. Format teks dengan markdown tebal (**) jika menyebutkan angka uang agar mudah dibaca.
 `;
 
-    const { text } = await generateText({
-      model: google('gemini-2.5-flash-lite'),
+    const text = await generateTextWithFallback({
       system: systemPrompt,
       prompt: userMessage,
     });
