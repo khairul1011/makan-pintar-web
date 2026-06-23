@@ -1,4 +1,4 @@
-import { streamText } from 'ai';
+import { generateText } from 'ai';
 import { createGoogleGenerativeAI } from '@ai-sdk/google';
 
 const google = createGoogleGenerativeAI({
@@ -6,13 +6,17 @@ const google = createGoogleGenerativeAI({
 });
 
 export async function POST(req) {
-  const body = await req.json();
+  try {
+    const body = await req.json();
 
-  // @ai-sdk/react v3 sends { messages, data } in body
-  const messages = body.messages ?? [];
-  const userProfile = body.data?.userProfile ?? {};
+    const userMessage = body.message;
+    const userProfile = body.userProfile ?? {};
 
-  const systemPrompt = `
+    if (!userMessage) {
+      return Response.json({ error: 'Message is required' }, { status: 400 });
+    }
+
+    const systemPrompt = `
 Kamu adalah Makan Pintar AI, asisten keuangan dan nutrisi cerdas yang berbicara santai khas anak Jakarta (menggunakan kata ganti "gue" dan "lo", simpel, dan suportif).
 Tugasmu membantu pengguna mengatur budget makan, memberi alternatif makanan murah, dan mengingatkan soal nutrisi.
 
@@ -32,23 +36,15 @@ Instruksi:
 5. Format teks dengan markdown tebal (**) jika menyebutkan angka uang agar mudah dibaca.
 `;
 
-  // Normalize messages: extract text content from parts array if present (new SDK format)
-  const normalizedMessages = messages.map((msg) => {
-    if (msg.parts && Array.isArray(msg.parts)) {
-      const textContent = msg.parts
-        .filter((p) => p.type === 'text')
-        .map((p) => p.text)
-        .join('');
-      return { role: msg.role, content: textContent };
-    }
-    return { role: msg.role, content: msg.content };
-  });
+    const { text } = await generateText({
+      model: google('gemini-2.5-flash'),
+      system: systemPrompt,
+      prompt: userMessage,
+    });
 
-  const result = streamText({
-    model: google('gemini-2.5-flash'),
-    system: systemPrompt,
-    messages: normalizedMessages,
-  });
-
-  return result.toUIMessageStreamResponse();
+    return Response.json({ reply: text });
+  } catch (error) {
+    console.error("Chat API Error:", error);
+    return Response.json({ error: 'Failed to process request' }, { status: 500 });
+  }
 }

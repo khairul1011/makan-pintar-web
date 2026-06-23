@@ -68,7 +68,17 @@ export default function MainLayout({ children }) {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: text })
+        body: JSON.stringify({ 
+          message: text,
+          userProfile: {
+            saldoMakan: state.saldoMakan,
+            hariKeKiriman: state.hariKeKiriman,
+            budgetHarian: state.budgetHarian,
+            targetCalories: state.targetCalories,
+            targetProtein: state.targetProtein,
+            todaySpent: state.todaySpent
+          }
+        })
       });
 
       if (!response.ok) throw new Error("API call failed");
