@@ -2,13 +2,31 @@
 module.exports = {
   darkMode: ["class"],
   content: [
-    './pages/**/*.{js,jsx}',
-    './components/**/*.{js,jsx}',
-    './app/**/*.{js,jsx}',
-    './src/**/*.{js,jsx}',
+    './pages/**/*.{js,jsx,ts,tsx}',
+    './components/**/*.{js,jsx,ts,tsx}',
+    './app/**/*.{js,jsx,ts,tsx}',
+    './src/**/*.{js,jsx,ts,tsx}',
   ],
   theme: {
     extend: {
+      fontFamily: {
+        headline: ['Anton', 'sans-serif'],
+        sans: ['"Hanken Grotesk"', 'sans-serif'],
+      },
+      animation: {
+        'spin-slow': 'spin-slow 12s linear infinite',
+        'fade-in': 'fade-in 0.3s ease-out forwards',
+      },
+      keyframes: {
+        'spin-slow': {
+          from: { transform: 'rotate(0deg)' },
+          to: { transform: 'rotate(360deg)' },
+        },
+        'fade-in': {
+          from: { opacity: '0', transform: 'translateY(10px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        }
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
@@ -53,4 +71,3 @@ module.exports = {
   },
   plugins: [require("tailwindcss-animate")],
 }
-// Force cache bust 1
