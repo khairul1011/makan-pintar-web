@@ -377,15 +377,41 @@ export default function MainLayout({ children }) {
       )}
 
       {/* MOBILE BOTTOM NAV */}
-      <footer id="app-mobile-nav" className="lg:hidden fixed bottom-5 left-4 right-4 h-16 bg-zinc-950/90 backdrop-blur-xl border border-zinc-800/85 rounded-2xl z-40 flex items-center justify-around px-2 shadow-2xl select-none">
+      <footer id="app-mobile-nav" className="lg:hidden fixed bottom-5 left-4 right-4 h-16 bg-zinc-950/95 backdrop-blur-xl border border-zinc-800 rounded-2xl z-40 flex items-center justify-around px-3 shadow-2xl select-none">
         {menuItems.map((item) => {
           const IconComponent = item.icon;
+          const isActive = activePath === item.path;
           return (
-            <button key={item.path} onClick={() => router.push(item.path)} className={`flex flex-col items-center justify-center flex-1 py-1 cursor-pointer ${activePath === item.path ? "text-zinc-100 font-semibold" : "text-zinc-450"}`}>
-              <IconComponent className="w-5 h-5" />
-              <span className="text-[9px] mt-0.5 uppercase tracking-wider font-medium">{item.name.split(" ")[0]}</span>
+            <button
+              key={item.path}
+              onClick={() => router.push(item.path)}
+              className={`relative flex flex-col items-center justify-center flex-1 py-1.5 cursor-pointer rounded-xl transition-all duration-200 ${
+                isActive ? "text-zinc-950" : "text-zinc-500 hover:text-zinc-300"
+              }`}
+            >
+              {/* Floating Pill Background */}
+              {isActive && (
+                <span className="absolute inset-0 bg-white rounded-xl shadow-lg" />
+              )}
+
+              {/* Glow di belakang ikon aktif */}
+              {isActive && (
+                <span className="absolute inset-0 rounded-xl bg-white/20 blur-md" />
+              )}
+
+              {/* Ikon */}
+              <span className={`relative z-10 transition-transform duration-200 ${isActive ? "scale-110" : "scale-100"}`}>
+                <IconComponent className="w-5 h-5" />
+              </span>
+
+              {/* Label */}
+              <span className={`relative z-10 text-[9px] mt-0.5 uppercase tracking-wider transition-all duration-200 ${
+                isActive ? "font-extrabold" : "font-medium"
+              }`}>
+                {item.name.split(" ")[0]}
+              </span>
             </button>
-          )
+          );
         })}
       </footer>
     </div>
