@@ -275,16 +275,15 @@ export default function DashboardPage() {
                 <span className="absolute -top-4 right-0 text-[9px] text-red-500/80 font-bold tracking-widest uppercase bg-[#0C0C0E] px-1 rounded">Limit {Math.round(dailyLimit/1000)}k</span>
               </div>
 
-              {state.weeklySpending?.map((amount, idx) => {
-                const isToday = idx === 6;
-                const isOver = amount > dailyLimit;
-                const heightPercentage = dailyLimit > 0 ? Math.min(110, (amount / dailyLimit) * 100) : 0;
-                const days = ["Sel", "Rab", "Kam", "Jum", "Sab", "Min", "Sen"]; // Mock labels
+              {state.weeklySpending?.map((item, idx) => {
+                const isToday = idx === state.weeklySpending.length - 1;
+                const isOver = item.amount > dailyLimit;
+                const heightPercentage = dailyLimit > 0 ? Math.min(110, (item.amount / dailyLimit) * 100) : 0;
                 
                 return (
                 <div key={idx} className="flex-1 flex flex-col items-center justify-end h-full group relative z-10">
                   <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-zinc-950 border border-zinc-800 text-zinc-100 font-mono text-[10px] px-2 py-1 rounded-md shadow-md pointer-events-none whitespace-nowrap">
-                    Rp {amount.toLocaleString("id")}
+                    Rp {item.amount.toLocaleString("id")}
                   </div>
 
                   <div 
@@ -298,7 +297,7 @@ export default function DashboardPage() {
                     }`}
                   />
                   <span className={`text-[10px] mt-2 font-semibold ${isToday ? "text-zinc-200" : "text-zinc-500"}`}>
-                    {days[idx]}
+                    {item.day}
                   </span>
                 </div>
               )})}
