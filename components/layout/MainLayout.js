@@ -489,42 +489,97 @@ export default function MainLayout({ children }) {
       )}
 
       {/* MOBILE BOTTOM NAV */}
-      <footer id="app-mobile-nav" className="lg:hidden fixed bottom-5 left-4 right-4 h-16 bg-zinc-950/95 backdrop-blur-xl border border-zinc-800 rounded-2xl z-40 flex items-center justify-around px-3 shadow-2xl select-none">
-        {menuItems.map((item) => {
-          const IconComponent = item.icon;
-          const isActive = activePath === item.path;
-          return (
-            <button
-              key={item.path}
-              onClick={() => router.push(item.path)}
-              className={`relative flex flex-col items-center justify-center flex-1 py-1.5 cursor-pointer rounded-xl transition-all duration-200 ${
-                isActive ? "text-zinc-950" : "text-zinc-500 hover:text-zinc-300"
-              }`}
-            >
-              {/* Floating Pill Background */}
-              {isActive && (
-                <span className="absolute inset-0 bg-white rounded-xl shadow-lg" />
-              )}
+      <footer id="app-mobile-nav" className="lg:hidden fixed bottom-5 left-4 right-4 h-16 bg-zinc-950/95 backdrop-blur-xl border border-zinc-800 rounded-2xl z-40 flex items-center justify-between px-2 shadow-2xl select-none">
+        {/* Left Side (2 items) */}
+        <div className="flex flex-1 justify-around">
+          {menuItems.slice(0, 2).map((item) => {
+            const IconComponent = item.icon;
+            const isActive = activePath === item.path;
+            return (
+              <button
+                key={item.path}
+                onClick={() => router.push(item.path)}
+                className={`relative flex flex-col items-center justify-center flex-1 py-1.5 cursor-pointer rounded-xl transition-all duration-200 ${
+                  isActive ? "text-zinc-950" : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                {isActive && <span className="absolute inset-0 bg-white rounded-xl shadow-lg" />}
+                {isActive && <span className="absolute inset-0 rounded-xl bg-white/20 blur-md" />}
+                <span className={`relative z-10 transition-transform duration-200 ${isActive ? "scale-110" : "scale-100"}`}>
+                  <IconComponent className="w-5 h-5" />
+                </span>
+                <span className={`relative z-10 text-[9px] mt-0.5 uppercase tracking-wider transition-all duration-200 ${
+                  isActive ? "font-extrabold" : "font-medium"
+                }`}>
+                  {item.name.split(" ")[0]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
 
-              {/* Glow di belakang ikon aktif */}
-              {isActive && (
-                <span className="absolute inset-0 rounded-xl bg-white/20 blur-md" />
-              )}
+        {/* Center Camera FAB */}
+        <div className="relative shrink-0 px-2" ref={photoMenuRef}>
+          <button 
+            onClick={handlePhotoClick}
+            disabled={isScanningPhoto}
+            className={`w-14 h-14 -translate-y-4 rounded-full bg-indigo-500 text-white flex items-center justify-center shadow-[0_8px_30px_rgba(99,102,241,0.4)] border-4 border-zinc-950 transition-transform active:scale-95 z-50 ${isScanningPhoto ? "opacity-70" : ""}`}
+          >
+            {isScanningPhoto ? (
+              <div className="w-6 h-6 border-2 border-indigo-200 border-t-white rounded-full animate-spin" />
+            ) : (
+              <Camera className="w-6 h-6" />
+            )}
+          </button>
 
-              {/* Ikon */}
-              <span className={`relative z-10 transition-transform duration-200 ${isActive ? "scale-110" : "scale-100"}`}>
-                <IconComponent className="w-5 h-5" />
-              </span>
+          {/* Photo Options Dropdown (Mobile - Shows above the FAB) */}
+          {showPhotoMenu && !isScanningPhoto && (
+            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 w-48 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl py-1.5 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
+              <button 
+                onClick={() => { cameraInputRef.current?.click(); setShowPhotoMenu(false); }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-300 hover:text-zinc-100 hover:bg-zinc-800/80 transition-colors text-left"
+              >
+                <Camera className="w-4 h-4 text-emerald-400" />
+                <span>Foto Langsung</span>
+              </button>
+              <button 
+                onClick={() => { fileInputRef.current?.click(); setShowPhotoMenu(false); }}
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-300 hover:text-zinc-100 hover:bg-zinc-800/80 transition-colors text-left"
+              >
+                <ImagePlus className="w-4 h-4 text-purple-400" />
+                <span>Upload dari File</span>
+              </button>
+            </div>
+          )}
+        </div>
 
-              {/* Label */}
-              <span className={`relative z-10 text-[9px] mt-0.5 uppercase tracking-wider transition-all duration-200 ${
-                isActive ? "font-extrabold" : "font-medium"
-              }`}>
-                {item.name.split(" ")[0]}
-              </span>
-            </button>
-          );
-        })}
+        {/* Right Side (2 items) */}
+        <div className="flex flex-1 justify-around">
+          {menuItems.slice(2, 4).map((item) => {
+            const IconComponent = item.icon;
+            const isActive = activePath === item.path;
+            return (
+              <button
+                key={item.path}
+                onClick={() => router.push(item.path)}
+                className={`relative flex flex-col items-center justify-center flex-1 py-1.5 cursor-pointer rounded-xl transition-all duration-200 ${
+                  isActive ? "text-zinc-950" : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                {isActive && <span className="absolute inset-0 bg-white rounded-xl shadow-lg" />}
+                {isActive && <span className="absolute inset-0 rounded-xl bg-white/20 blur-md" />}
+                <span className={`relative z-10 transition-transform duration-200 ${isActive ? "scale-110" : "scale-100"}`}>
+                  <IconComponent className="w-5 h-5" />
+                </span>
+                <span className={`relative z-10 text-[9px] mt-0.5 uppercase tracking-wider transition-all duration-200 ${
+                  isActive ? "font-extrabold" : "font-medium"
+                }`}>
+                  {item.name.split(" ")[0]}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </footer>
     </div>
   );
