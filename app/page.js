@@ -2,16 +2,24 @@
 
 import React, { useState, useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
-import { Plus, Trash2, Flame, Coins, Scale, TrendingUp, ChefHat, Utensils, Lightbulb } from "lucide-react";
+import { Plus, Trash2, Flame, Coins, Scale, TrendingUp, ChefHat, Utensils, Lightbulb, Edit3, ShieldAlert, BadgeHelp } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import AddFoodModal from "@/components/features/AddFoodModal";
+import WorthItSheet from "@/components/features/WorthItSheet";
+import CompareSheet from "@/components/features/CompareSheet";
+import SurvivalSheet from "@/components/features/SurvivalSheet";
+import SaldoModal from "@/components/features/SaldoModal";
 
 export default function DashboardPage() {
   const { state, addFoodEntry, removeFoodEntry, clearScanResult } = useApp();
   const router = useRouter();
 
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showWorthIt, setShowWorthIt] = useState(false);
+  const [showCompare, setShowCompare] = useState(false);
+  const [showSurvival, setShowSurvival] = useState(false);
+  const [showSaldo, setShowSaldo] = useState(false);
 
   // Listen to AI scan result from MainLayout (via global store)
   useEffect(() => {
@@ -84,9 +92,13 @@ export default function DashboardPage() {
                   <span className="w-2 h-2 rounded-full bg-zinc-350"></span>
                   Sisa {state.hariKeKiriman} hari ke kiriman
                 </span>
-                <span className="font-semibold text-zinc-100 bg-zinc-800 px-2 py-1 rounded border border-zinc-700">
+                <button 
+                  onClick={() => setShowSaldo(true)}
+                  className="font-semibold text-zinc-100 bg-zinc-800 hover:bg-zinc-700 px-2.5 py-1 rounded-lg border border-zinc-700 flex items-center gap-1.5 transition-colors cursor-pointer"
+                >
                   Saldo: Rp {state.saldoMakan.toLocaleString("id")}
-                </span>
+                  <Edit3 className="w-3 h-3 text-zinc-400" />
+                </button>
               </div>
             </div>
           </div>
@@ -317,20 +329,20 @@ export default function DashboardPage() {
             </button>
 
             <button 
-              onClick={() => router.push("/profil")}
+              onClick={() => setShowWorthIt(true)}
               className="flex flex-col items-start gap-4 p-5 rounded-2xl bg-[#0C0C0E] border border-zinc-800/70 hover:border-zinc-700 hover:translate-y-[-3px] transition-all text-left duration-200 cursor-pointer"
             >
               <div className="p-3 rounded-xl bg-zinc-900 text-zinc-200 border border-zinc-800">
-                <TrendingUp className="w-5 h-5" />
+                <BadgeHelp className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-sm font-bold text-zinc-200">Target Nutrisi</h4>
-                <p className="text-xs text-zinc-500 mt-0.5 line-clamp-2">Atur jatah duit makan mingguan lo supaya aman.</p>
+                <h4 className="text-sm font-bold text-zinc-200">Worth It Checker</h4>
+                <p className="text-xs text-zinc-500 mt-0.5 line-clamp-2">Cek apakah makanan ini sesuai sama budget harian lo.</p>
               </div>
             </button>
             
             <button 
-              onClick={() => router.push("/riwayat")}
+              onClick={() => setShowCompare(true)}
               className="flex flex-col items-start gap-4 p-5 rounded-2xl bg-[#0C0C0E] border border-zinc-800/70 hover:border-zinc-700 hover:translate-y-[-3px] transition-all text-left duration-200 cursor-pointer"
             >
               <div className="p-3 rounded-xl bg-zinc-900 text-zinc-200 border border-zinc-800">
@@ -338,7 +350,20 @@ export default function DashboardPage() {
               </div>
               <div>
                 <h4 className="text-sm font-bold text-zinc-200">Bandingkan Cost</h4>
-                <p className="text-xs text-zinc-500 mt-0.5 line-clamp-2">Lihat histori lengkap dan amati kebocoran dana.</p>
+                <p className="text-xs text-zinc-500 mt-0.5 line-clamp-2">Bimbang pilih makanan? Bandingkan dua opsi di sini.</p>
+              </div>
+            </button>
+
+            <button 
+              onClick={() => setShowSurvival(true)}
+              className="flex flex-col items-start gap-4 p-5 rounded-2xl bg-[#0C0C0E] border border-red-900/30 hover:border-red-500/50 hover:bg-red-500/5 hover:translate-y-[-3px] transition-all text-left duration-200 cursor-pointer group"
+            >
+              <div className="p-3 rounded-xl bg-red-500/10 text-red-500 border border-red-500/20 group-hover:bg-red-500/20">
+                <ShieldAlert className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-red-400">Survival Mode</h4>
+                <p className="text-xs text-zinc-500 mt-0.5 line-clamp-2">Liat estimasi lo bisa bertahan berapa lama lagi.</p>
               </div>
             </button>
           </div>
@@ -371,6 +396,12 @@ export default function DashboardPage() {
             if (state.scanResult) clearScanResult();
           }}
         />
+
+        {/* FEATURE SHEETS & MODALS */}
+        <WorthItSheet isOpen={showWorthIt} onClose={() => setShowWorthIt(false)} />
+        <CompareSheet isOpen={showCompare} onClose={() => setShowCompare(false)} />
+        <SurvivalSheet isOpen={showSurvival} onClose={() => setShowSurvival(false)} />
+        <SaldoModal isOpen={showSaldo} onClose={() => setShowSaldo(false)} />
       </div>
     </MainLayout>
   );
