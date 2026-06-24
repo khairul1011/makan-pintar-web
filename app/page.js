@@ -12,9 +12,6 @@ export default function DashboardPage() {
   const router = useRouter();
 
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newFoodName, setNewFoodName] = useState("");
-  const [newFoodPrice, setNewFoodPrice] = useState("");
-  const [newFoodType, setNewFoodType] = useState("siang");
 
   // Listen to AI scan result from MainLayout (via global store)
   useEffect(() => {
@@ -38,20 +35,7 @@ export default function DashboardPage() {
     { name: "Telur Ceplok Cabai", price: 5000, calories: 190, mealType: "malam" }
   ];
 
-  const handleAddSubmit = async (e) => {
-    e.preventDefault();
-    if (!newFoodName.trim() || !newFoodPrice) return;
 
-    await addFoodEntry({
-      name: newFoodName,
-      price: Number(newFoodPrice),
-      meal: newFoodType
-    });
-
-    setNewFoodName("");
-    setNewFoodPrice("");
-    setShowAddModal(false);
-  };
 
   const handleQuickAdd = async (item) => {
     await addFoodEntry({
@@ -372,90 +356,19 @@ export default function DashboardPage() {
         </section>
 
         {/* LOG MEAL DIALOG MODAL */}
-        {showAddModal && (
-          <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
-            <div className="w-full max-w-md bg-zinc-950 border border-zinc-800 rounded-3xl p-6 shadow-2xl">
-              <h4 className="text-lg font-bold text-zinc-100 mb-4 flex items-center gap-2 border-b border-zinc-900 pb-3">
-                <Utensils className="w-5 h-5 text-zinc-400" />
-                Catat Makanan Baru
-              </h4>
-              <form onSubmit={handleAddSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-zinc-500 font-bold mb-1.5">Nama Makanan / Minuman</label>
-                  <input 
-                    type="text" 
-                    value={newFoodName}
-                    onChange={(e) => setNewFoodName(e.target.value)}
-                    placeholder="e.g. Nasi Padang Rendang" 
-                    className="w-full bg-zinc-900/70 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-zinc-500 font-bold mb-1.5">Harga (Rp)</label>
-                  <input 
-                    type="number" 
-                    value={newFoodPrice}
-                    onChange={(e) => setNewFoodPrice(e.target.value)}
-                    placeholder="e.g. 15000" 
-                    className="w-full bg-zinc-900/70 border border-zinc-800 rounded-xl px-4 py-3 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-500"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs uppercase tracking-wider text-zinc-500 font-bold mb-1.5">Waktu Makan</label>
-                  <div className="grid grid-cols-4 gap-2">
-                    {(["pagi", "siang", "malam", "cemilan"]).map((type) => (
-                      <button
-                        key={type}
-                        type="button"
-                        onClick={() => setNewFoodType(type)}
-                        className={`py-2 text-xs font-bold rounded-lg uppercase transition-all tracking-wide cursor-pointer ${
-                          newFoodType === type 
-                            ? "bg-zinc-100 text-zinc-950 font-semibold" 
-                            : "bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-zinc-300 border border-zinc-800/80"
-                        }`}
-                      >
-                        {type}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex gap-2.5 pt-4">
-                  <AddFoodModal 
-                    isOpen={showAddModal} 
-                    initialData={state.scanResult}
-                    onClose={() => {
-                      setShowAddModal(false);
-                      if (state.scanResult) clearScanResult();
-                    }}
-                    onSubmit={async (data) => {
-                      await handleQuickAdd(data);
-                      setShowAddModal(false);
-                      if (state.scanResult) clearScanResult();
-                    }}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowAddModal(false)}
-                    className="flex-1 py-3 text-xs font-bold uppercase rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors cursor-pointer"
-                  >
-                    Batal
-                  </button>
-                  <button
-                    type="submit"
-                    className="flex-1 py-3 text-xs font-bold uppercase rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 transition-colors shadow-lg cursor-pointer"
-                  >
-                    Simpan Log
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+        <AddFoodModal 
+          isOpen={showAddModal} 
+          initialData={state.scanResult}
+          onClose={() => {
+            setShowAddModal(false);
+            if (state.scanResult) clearScanResult();
+          }}
+          onSubmit={async (data) => {
+            await handleQuickAdd(data);
+            setShowAddModal(false);
+            if (state.scanResult) clearScanResult();
+          }}
+        />
       </div>
     </MainLayout>
   );
