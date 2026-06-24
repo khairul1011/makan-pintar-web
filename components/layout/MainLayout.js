@@ -25,7 +25,7 @@ import { useApp } from "@/lib/store";
 export default function MainLayout({ children }) {
   const router = useRouter();
   const activePath = usePathname();
-  const { state, addChatMessage, setAiTyping } = useApp();
+  const { state, addChatMessage, setAiTyping, fetchWithAuth, setScanResult } = useApp();
   
   const [inputText, setInputText] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -126,7 +126,7 @@ export default function MainLayout({ children }) {
       reader.readAsDataURL(file);
       const base64Data = await base64Promise;
 
-      const response = await state.fetchWithAuth("/api/vision", {
+      const response = await fetchWithAuth("/api/vision", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ imageBase64: base64Data })
@@ -137,7 +137,7 @@ export default function MainLayout({ children }) {
       
       // Save result to global store
       if (data.result) {
-        state.setScanResult(data.result);
+        setScanResult(data.result);
       }
     } catch (err) {
       console.error(err);
