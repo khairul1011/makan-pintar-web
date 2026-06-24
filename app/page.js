@@ -1,19 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MainLayout from "@/components/layout/MainLayout";
 import { Plus, Trash2, Flame, Coins, Scale, TrendingUp, ChefHat, Utensils, Lightbulb } from "lucide-react";
 import { useApp } from "@/lib/store";
 import { useRouter } from "next/navigation";
+import AddFoodModal from "@/components/features/AddFoodModal";
 
 export default function DashboardPage() {
-  const { state, addFoodEntry, removeFoodEntry } = useApp();
+  const { state, addFoodEntry, removeFoodEntry, clearScanResult } = useApp();
   const router = useRouter();
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [newFoodName, setNewFoodName] = useState("");
   const [newFoodPrice, setNewFoodPrice] = useState("");
   const [newFoodType, setNewFoodType] = useState("siang");
+
+  // Listen to AI scan result from MainLayout (via global store)
+  useEffect(() => {
+    if (state.scanResult) {
+      setShowAddModal(true);
+    }
+  }, [state.scanResult]);
 
   const totalSpentToday = state.todaySpent || 0;
   // Calculate total calories from todayEntries
@@ -417,6 +425,19 @@ export default function DashboardPage() {
                 </div>
 
                 <div className="flex gap-2.5 pt-4">
+                  <AddFoodModal 
+                    isOpen={showAddModal} 
+                    initialData={state.scanResult}
+                    onClose={() => {
+                      setShowAddModal(false);
+                      if (state.scanResult) clearScanResult();
+                    }}
+                    onSubmit={async (data) => {
+                      await handleQuickAdd(data);
+                      setShowAddModal(false);
+                      if (state.scanResult) clearScanResult();
+                    }}
+                  />
                   <button
                     type="button"
                     onClick={() => setShowAddModal(false)}

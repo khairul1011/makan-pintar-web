@@ -1,8 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { formatRupiahInput } from "@/lib/utils";
-import GlassCard from "../ui/GlassCard";
 
 const MEAL_OPTIONS = [
   { value: "Pagi", emoji: "🌅" },
@@ -13,12 +12,24 @@ const MEAL_OPTIONS = [
 
 const FOOD_EMOJIS = ["🍛", "🍜", "🍳", "🍱", "🍗", "🥚", "🍔", "🥤", "🧁", "🥟", "🍲", "🥗"];
 
-export default function AddFoodModal({ isOpen, onClose, onSubmit }) {
+export default function AddFoodModal({ isOpen, onClose, onSubmit, initialData }) {
   const [name, setName] = useState("");
   const [meal, setMeal] = useState("Siang");
   const [price, setPrice] = useState("");
   const [emoji, setEmoji] = useState("🍛");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (initialData && isOpen) {
+      setName(initialData.namaMakanan || "");
+      if (initialData.prediksiHarga) {
+        setPrice(formatRupiahInput(initialData.prediksiHarga.toString()));
+      }
+      if (initialData.emoji && FOOD_EMOJIS.includes(initialData.emoji)) {
+        setEmoji(initialData.emoji);
+      }
+    }
+  }, [initialData, isOpen]);
 
   const resetForm = () => {
     setName("");
@@ -44,7 +55,10 @@ export default function AddFoodModal({ isOpen, onClose, onSubmit }) {
     resetForm();
 
     // Proses onSubmit (yang mengirim request ke API secara background)
-    await onSubmit(foodData);
+    await onSubmit({
+      ...foodData,
+      calories: initialData?.prediksiKalori || 0
+    });
   };
 
   const handlePriceChange = (e) => {
@@ -56,7 +70,7 @@ export default function AddFoodModal({ isOpen, onClose, onSubmit }) {
 
   return (
     <div className={`modal-overlay ${isOpen ? "open" : ""}`} onClick={onClose}>
-      <GlassCard className="modal-card" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-card" onClick={(e) => e.stopPropagation()}>
         <h2 className="modal-title">🍽️ Tambah Makanan</h2>
 
         <form className="feature-form" onSubmit={handleSubmit}>
@@ -165,7 +179,7 @@ export default function AddFoodModal({ isOpen, onClose, onSubmit }) {
             {isSubmitting ? "⏳ Menyimpan..." : "✅ Simpan Makanan"}
           </button>
         </form>
-      </GlassCard>
+      </div>
     </div>
   );
 }

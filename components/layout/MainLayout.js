@@ -30,6 +30,8 @@ export default function MainLayout({ children }) {
   const [inputText, setInputText] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isBotDrawerOpen, setIsBotDrawerOpen] = useState(false); // default closed on mobile, shown on xl via css
+  const [isScanningPhoto, setIsScanningPhoto] = useState(false);
+  const photoInputRef = useRef(null);
   const chatEndRef = useRef(null);
 
   const { chatMessages, isAiTyping } = state;
@@ -102,6 +104,58 @@ export default function MainLayout({ children }) {
 
   const handleQuickAiAsk = (text) => {
     handleSendMessage(text);
+  };
+
+  const handlePhotoClick = () => {
+    photoInputRef.current?.click();
+  };
+
+  const handlePhotoChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setIsScanningPhoto(true);
+
+    try {
+      // Read file as base64
+      const reader = new FileReader();
+      const base64Promise = new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+      });
+      reader.readAsDataURL(file);
+      const base64Data = await base64Promise;
+
+      const response = await state.fetchWithAuth("/api/vision", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ imageBase64: base64Data })
+      });
+
+      if (!response.ok) throw new Error("Vision API failed");
+      const data = await response.json();
+      
+      // Save result to global store
+      if (data.result) {
+        state.setScanResult(data.result);
+      }
+    } catch (err) {
+      console.error(err);
+      // Fallback message if vision fails
+      let replyText = "Aduh, AI Vision lagi error nih. Coba tulis aja namanya manual ya.";
+      const aiMsg = {
+        id: "am-" + Math.random(),
+        sender: "ai",
+        text: replyText,
+        createdAt: new Date().toISOString()
+      };
+      addChatMessage(aiMsg);
+      setIsBotDrawerOpen(true);
+    } finally {
+      setIsScanningPhoto(false);
+      // Reset file input
+      if (photoInputRef.current) photoInputRef.current.value = "";
+    }
   };
 
   const menuItems = [
@@ -211,12 +265,25 @@ export default function MainLayout({ children }) {
           </div>
 
           <div className="flex items-center gap-3">
+            <input 
+              type="file" 
+              accept="image/*" 
+              capture="environment" 
+              className="hidden" 
+              ref={photoInputRef}
+              onChange={handlePhotoChange}
+            />
             <button 
-              onClick={() => handleQuickAiAsk("Analisis foto makanan dari dompetku!")}
-              className="hidden sm:flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-200 font-bold rounded-xl px-5 py-2.5 text-xs transition-all tracking-wider uppercase active:scale-[0.98] shadow-sm cursor-pointer"
+              onClick={handlePhotoClick}
+              disabled={isScanningPhoto}
+              className={`hidden sm:flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-200 font-bold rounded-xl px-5 py-2.5 text-xs transition-all tracking-wider uppercase active:scale-[0.98] shadow-sm cursor-pointer ${isScanningPhoto ? "opacity-70 pointer-events-none" : ""}`}
             >
-              <Camera className="w-3.5 h-3.5" />
-              Foto Makanan
+              {isScanningPhoto ? (
+                <div className="w-3.5 h-3.5 border-2 border-zinc-400 border-t-zinc-100 rounded-full animate-spin" />
+              ) : (
+                <Camera className="w-3.5 h-3.5" />
+              )}
+              {isScanningPhoto ? "Scanning..." : "Foto Makanan"}
             </button>
 
             <button className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800/65 hover:bg-zinc-800/40 text-zinc-300 hover:text-zinc-100 relative transition-colors cursor-pointer">
