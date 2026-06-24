@@ -41,7 +41,9 @@ export default function DashboardPage() {
     await addFoodEntry({
       name: item.name,
       price: item.price,
-      meal: item.mealType
+      meal: item.meal || item.mealType, // Support both AddFoodModal (meal) and Quick Suggestions (mealType)
+      emoji: item.emoji,
+      calories: item.calories
     });
   };
 
