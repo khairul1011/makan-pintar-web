@@ -18,7 +18,8 @@ import {
   UtensilsCrossed, 
   Camera,
   Flame,
-  Wallet
+  Wallet,
+  ImagePlus
 } from "lucide-react";
 import { useApp } from "@/lib/store";
 
@@ -31,7 +32,11 @@ export default function MainLayout({ children }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isBotDrawerOpen, setIsBotDrawerOpen] = useState(false); // default closed on mobile, shown on xl via css
   const [isScanningPhoto, setIsScanningPhoto] = useState(false);
-  const photoInputRef = useRef(null);
+  const [showPhotoMenu, setShowPhotoMenu] = useState(false);
+  
+  const cameraInputRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const photoMenuRef = useRef(null);
   const chatEndRef = useRef(null);
 
   const { chatMessages, isAiTyping } = state;
@@ -39,6 +44,16 @@ export default function MainLayout({ children }) {
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chatMessages, isAiTyping]);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (photoMenuRef.current && !photoMenuRef.current.contains(event.target)) {
+        setShowPhotoMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSend = (e) => {
     e.preventDefault();
@@ -107,7 +122,7 @@ export default function MainLayout({ children }) {
   };
 
   const handlePhotoClick = () => {
-    photoInputRef.current?.click();
+    setShowPhotoMenu(!showPhotoMenu);
   };
 
   const handlePhotoChange = async (e) => {
@@ -154,7 +169,8 @@ export default function MainLayout({ children }) {
     } finally {
       setIsScanningPhoto(false);
       // Reset file input
-      if (photoInputRef.current) photoInputRef.current.value = "";
+      if (cameraInputRef.current) cameraInputRef.current.value = "";
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   };
 
@@ -265,26 +281,55 @@ export default function MainLayout({ children }) {
           </div>
 
           <div className="flex items-center gap-3">
-            <input 
-              type="file" 
-              accept="image/*" 
-              capture="environment" 
-              className="hidden" 
-              ref={photoInputRef}
-              onChange={handlePhotoChange}
-            />
-            <button 
-              onClick={handlePhotoClick}
-              disabled={isScanningPhoto}
-              className={`hidden sm:flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-200 font-bold rounded-xl px-5 py-2.5 text-xs transition-all tracking-wider uppercase active:scale-[0.98] shadow-sm cursor-pointer ${isScanningPhoto ? "opacity-70 pointer-events-none" : ""}`}
-            >
-              {isScanningPhoto ? (
-                <div className="w-3.5 h-3.5 border-2 border-zinc-400 border-t-zinc-100 rounded-full animate-spin" />
-              ) : (
-                <Camera className="w-3.5 h-3.5" />
+            <div className="relative" ref={photoMenuRef}>
+              <input 
+                type="file" 
+                accept="image/*" 
+                capture="environment" 
+                className="hidden" 
+                ref={cameraInputRef}
+                onChange={handlePhotoChange}
+              />
+              <input 
+                type="file" 
+                accept="image/*" 
+                className="hidden" 
+                ref={fileInputRef}
+                onChange={handlePhotoChange}
+              />
+              <button 
+                onClick={handlePhotoClick}
+                disabled={isScanningPhoto}
+                className={`hidden sm:flex items-center gap-2 bg-zinc-900 hover:bg-zinc-800/80 border border-zinc-800 text-zinc-200 font-bold rounded-xl px-5 py-2.5 text-xs transition-all tracking-wider uppercase active:scale-[0.98] shadow-sm cursor-pointer ${isScanningPhoto ? "opacity-70 pointer-events-none" : ""}`}
+              >
+                {isScanningPhoto ? (
+                  <div className="w-3.5 h-3.5 border-2 border-zinc-400 border-t-zinc-100 rounded-full animate-spin" />
+                ) : (
+                  <Camera className="w-3.5 h-3.5" />
+                )}
+                {isScanningPhoto ? "Scanning..." : "Foto Makanan"}
+              </button>
+
+              {/* Photo Options Dropdown */}
+              {showPhotoMenu && !isScanningPhoto && (
+                <div className="absolute top-full right-0 mt-2 w-48 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl py-1.5 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <button 
+                    onClick={() => { cameraInputRef.current?.click(); setShowPhotoMenu(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-300 hover:text-zinc-100 hover:bg-zinc-800/80 transition-colors text-left"
+                  >
+                    <Camera className="w-4 h-4 text-emerald-400" />
+                    <span>Foto Langsung</span>
+                  </button>
+                  <button 
+                    onClick={() => { fileInputRef.current?.click(); setShowPhotoMenu(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-zinc-300 hover:text-zinc-100 hover:bg-zinc-800/80 transition-colors text-left"
+                  >
+                    <ImagePlus className="w-4 h-4 text-purple-400" />
+                    <span>Upload dari File</span>
+                  </button>
+                </div>
               )}
-              {isScanningPhoto ? "Scanning..." : "Foto Makanan"}
-            </button>
+            </div>
 
             <button className="p-2.5 rounded-xl bg-zinc-900/60 border border-zinc-800/65 hover:bg-zinc-800/40 text-zinc-300 hover:text-zinc-100 relative transition-colors cursor-pointer">
               <Bell className="w-5 h-5" />
