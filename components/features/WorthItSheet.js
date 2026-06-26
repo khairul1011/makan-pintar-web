@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useApp } from "@/lib/store";
 import { formatRupiah, getDailyBudget, parsePriceInput, formatRupiahInput } from "@/lib/utils";
 import FeatureSheet from "../ui/FeatureSheet";
-import { ArrowRight, CheckCircle2, AlertTriangle, AlertCircle, TrendingDown, Scale } from "lucide-react";
+import { ArrowRight, CheckCircle2, AlertTriangle, AlertCircle, Flame } from "lucide-react";
 
 export default function WorthItSheet({ isOpen, onClose }) {
   const { state } = useApp();
