@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useApp } from "@/lib/store";
-import { formatRupiah, getDailyBudget, parsePriceInput } from "@/lib/utils";
+import { formatRupiah, getDailyBudget, parsePriceInput, formatRupiahInput } from "@/lib/utils";
 import FeatureSheet from "../ui/FeatureSheet";
-import { ArrowRight, CheckCircle2, AlertTriangle, AlertCircle } from "lucide-react";
+import { ArrowRight, CheckCircle2, AlertTriangle, AlertCircle, TrendingDown, Scale } from "lucide-react";
 
 export default function WorthItSheet({ isOpen, onClose }) {
   const { state } = useApp();
@@ -12,7 +12,7 @@ export default function WorthItSheet({ isOpen, onClose }) {
   const [foodPrice, setFoodPrice] = useState("");
   const [showResult, setShowResult] = useState(false);
 
-  const budgetHarian = getDailyBudget(state.saldoMakan, state.hariKeKiriman);
+  const budgetHarian = getDailyBudget(state.saldoMakan, state.hariKeKiriman) || 100000;
   const foodPriceNum = parsePriceInput(foodPrice);
   const afterSpent = state.todaySpent + foodPriceNum;
   const remaining = budgetHarian - afterSpent;
@@ -46,7 +46,7 @@ export default function WorthItSheet({ isOpen, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!foodPrice) return;
+    if (!foodPrice || foodPriceNum <= 0) return;
     setShowResult(true);
   };
 
@@ -56,6 +56,38 @@ export default function WorthItSheet({ isOpen, onClose }) {
     setFoodPrice("");
     onClose();
   };
+
+  useEffect(() => {
+    if (!isOpen) {
+      setFoodName("");
+      setFoodPrice("");
+      setShowResult(false);
+    }
+  }, [isOpen]);
+
+  const jumlahGorengan = Math.floor(foodPriceNum / 1500);
+  
+  // Dynamic alternatives based on price
+  const getAlternatives = (price) => {
+    if (price <= 10000) return [
+      { name: "Masak mie instan + telur", price: 5000 },
+      { name: "Nasi warteg porsi kuli", price: 10000 }
+    ];
+    if (price <= 25000) return [
+      { name: "Warteg lauk ayam", price: 15000 },
+      { name: "Ayam geprek pinggir jalan", price: 18000 }
+    ];
+    if (price <= 50000) return [
+      { name: "Nasi padang komplit", price: 25000 },
+      { name: "Masak lauk ayam untuk 2 hari", price: 40000 }
+    ];
+    return [
+      { name: "Belanja sayur 1 minggu", price: 70000 },
+      { name: "All you can eat murah", price: 99000 }
+    ];
+  };
+
+  const alternatives = getAlternatives(foodPriceNum);
 
   return (
     <FeatureSheet
@@ -91,11 +123,7 @@ export default function WorthItSheet({ isOpen, onClose }) {
                 placeholder="25.000"
                 inputMode="numeric"
                 value={foodPrice}
-                onChange={(e) => {
-                  import("@/lib/utils").then(({ formatRupiahInput }) => {
-                    setFoodPrice(formatRupiahInput(e.target.value));
-                  });
-                }}
+                onChange={(e) => setFoodPrice(formatRupiahInput(e.target.value))}
               />
             </div>
           </div>
@@ -138,20 +166,27 @@ export default function WorthItSheet({ isOpen, onClose }) {
           </div>
           
           <div className="flex flex-col gap-3">
-            <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Alternatif sekitar harga segitu:</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-zinc-500">Konteks untuk anak kos:</p>
             <div className="flex flex-col gap-2">
-              <div className="flex justify-between items-center bg-zinc-900/30 border border-zinc-800/40 px-4 py-3 rounded-xl">
-                <span className="text-sm text-zinc-300">Warteg</span>
-                <strong className="text-sm font-mono text-zinc-400">~Rp 15.000</strong>
+              <div className="flex items-center gap-3 bg-zinc-900/30 border border-zinc-800/40 px-4 py-3 rounded-xl">
+                <div className="p-2 bg-orange-500/10 rounded-lg text-orange-400">
+                  <Flame className="w-4 h-4" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-zinc-200">Bisa dapet {jumlahGorengan} gorengan</span>
+                  <span className="text-xs text-zinc-500">Asumsi harga Rp 1.500/biji</span>
+                </div>
               </div>
-              <div className="flex justify-between items-center bg-zinc-900/30 border border-zinc-800/40 px-4 py-3 rounded-xl">
-                <span className="text-sm text-zinc-300">Masak sendiri</span>
-                <strong className="text-sm font-mono text-zinc-400">~Rp 5.000</strong>
-              </div>
-              <div className="flex justify-between items-center bg-zinc-900/30 border border-zinc-800/40 px-4 py-3 rounded-xl">
-                <span className="text-sm text-zinc-300">GoFood promo</span>
-                <strong className="text-sm font-mono text-zinc-400">~Rp 20.000</strong>
-              </div>
+            </div>
+            
+            <p className="text-xs font-bold uppercase tracking-wider text-zinc-500 mt-2">Alternatif lebih hemat:</p>
+            <div className="flex flex-col gap-2">
+              {alternatives.map((alt, i) => (
+                <div key={i} className="flex justify-between items-center bg-zinc-900/30 border border-zinc-800/40 px-4 py-3 rounded-xl">
+                  <span className="text-sm text-zinc-300">{alt.name}</span>
+                  <strong className="text-sm font-mono text-zinc-400">{formatRupiah(alt.price)}</strong>
+                </div>
+              ))}
             </div>
           </div>
           
